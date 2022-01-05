@@ -6,8 +6,22 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "start:clear": "react-native start --resetCache",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "pod_install": "cd ios && pod install && cd ..",
+    "android:adb": "adb reverse tcp:8081 tcp:8081",
+    "android:clean": "cd android && ./gradlew clean && cd ..",
+    "android:assemble": "cd android && ./gradlew assembleRelease && cd ..",
+    "android:bundle": "cd android && ./gradlew bundleRelease && cd ..",
+    "clean": "cd android && ./gradlew clean && cd .. && cd ios && xcodebuild clean",
+    "build": "npx react-native run-android",
+    "release": "cd android && ./gradlew app:assembleRelease",
+    "bundle": "cd android && ./gradlew bundleRelease",
+    "emlist": "~/Library/Android/sdk/tools/emulator -list-avds",
+    "emrun": "~/Library/Android/sdk/emulator/emulator -avd Pixel_2_API_28",
+    "archive": "yarn clean && rm -rf node_modules/ && rm -rf ios/Pods && cd .. && zip -r ExpandCart.zip ExpandCart && cd ExpandCart && yarn",
+    "pod": "cd ios && pod install && cd .."
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.10",
@@ -23,7 +37,8 @@
     "react-native-reanimated": "^1.13.0",
     "react-native-safe-area-context": "^3.1.8",
     "react-native-screens": "^2.11.0",
-    "react-native-vector-icons": "^7.1.0"
+    "react-native-vector-icons": "^9.0.0",
+    "socket.io-client": "^4.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
