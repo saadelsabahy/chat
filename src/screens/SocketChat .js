@@ -1,6 +1,7 @@
 import {useIsFocused} from '@react-navigation/native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -10,6 +11,7 @@ import {
 } from 'react-native';
 import {Bubble, GiftedChat} from 'react-native-gifted-chat';
 import {io} from 'socket.io-client';
+import {removeDoublicate} from '../utils/functions';
 import {SCREEN_HEIGHT} from './Login';
 const SocketChat = ({route, navigation}) => {
   const {userName} = route.params;
@@ -22,18 +24,13 @@ const SocketChat = ({route, navigation}) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const socket = io('http://localhost:3000', {});
+    const socket = io('http://192.168.1.6:3000', {
+      transports: ['websocket'],
+      jsonp: false,
+      forceNew: true,
+    });
     setSocket(socket);
-    /* {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      }, */
+
     const messageListener = (message) => {
       const {
         id,
@@ -57,15 +54,14 @@ const SocketChat = ({route, navigation}) => {
     };
 
     const deleteMessageListener = (messageID) => {
-      // setMessages((prevMessages) => {
-      //   const newMessages = {...prevMessages};
-      //   delete newMessages[messageID];
-      //   return newMessages;
-      // });
+      setMessages((prevMessages) => {
+        const newMessages = prevMessages.filter(
+          (message) => message.id !== messageID,
+        );
+        return newMessages;
+      });
     };
-    socket.on('connection', (msg) => {
-      console.log('connection');
-    });
+
     socket.on('message', messageListener);
     socket.on('deleteMessage', deleteMessageListener);
     socket.emit('getMessages');
@@ -79,6 +75,7 @@ const SocketChat = ({route, navigation}) => {
   console.log({messages});
   const onSend = useCallback(
     (messages = []) => {
+      Keyboard.dismiss();
       socket.emit('message', {
         value: messages[0].text,
         user: {name: user.name, id: user._id},
@@ -89,9 +86,10 @@ const SocketChat = ({route, navigation}) => {
     },
     [socket, setSocket],
   );
+  console.log('hello', {user});
   const GIFTEDCHAT = (
     <GiftedChat
-      messages={messages}
+      messages={removeDoublicate(messages)}
       onSend={onSend}
       user={user}
       placeholder="type message here..."
